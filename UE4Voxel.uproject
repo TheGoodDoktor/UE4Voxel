@@ -1,0 +1,13 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{30E78D95-466C-D9C2-459F-9FA858770EB5}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "UE4Voxel",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
