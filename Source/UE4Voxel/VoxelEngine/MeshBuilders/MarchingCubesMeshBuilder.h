@@ -9,12 +9,14 @@ class FMarchingCubesMeshBuilder : public IMeshBuilder
 {
 public:
 	// IMeshBuilder interface
-	virtual void BuildMeshForChunk(FChunk* pChunk, FProcMeshSection& meshSection) override;
+	virtual void Init(FVoxelEngine *pEngine) override;
+	virtual void BuildMeshForChunk(FChunk* pChunk) override;
 	// \IMeshBuilder interface
 
-	int BuildMeshForBlock(const FIntVector& worldPos, const FVector& chunkPos, FProcMeshSection& meshSection, int index);
+	int BuildMeshForBlock(const FIntVector& worldPos, const FVector& chunkPos, FChunk* pChunk, int index);
 	void CalculateDensitiesForBlock(FIntVector worldPos, float density[]);
 
+	FVoxelEngine	*Engine;
 	int		ChunkSizeBlocks;
 	float	BlockSize;	// size of block in world units
 };

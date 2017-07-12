@@ -1,4 +1,6 @@
+#pragma once
 
+class FVoxelEngine;
 
 namespace Voxel
 {
@@ -8,7 +10,9 @@ struct FProcMeshSection;
 
 class IMeshBuilder
 {
-	virtual void BuildMeshForChunk(FChunk* pChunk, FProcMeshSection& meshSection) = 0;
+public:
+	virtual void Init(FVoxelEngine *pEngine) = 0;
+	virtual void BuildMeshForChunk(FChunk* pChunk) = 0;
 };
 	
 }

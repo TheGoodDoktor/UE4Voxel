@@ -1,5 +1,5 @@
 #include "VoxelEngine.h"
-
+#include "Meshbuilders/MarchingCubesMeshBuilder.h"
 
 bool	FVoxelEngine::InitialiseWorld(FIntVector worldSizeVoxels)
 {
@@ -16,6 +16,12 @@ bool	FVoxelEngine::InitialiseWorld(FIntVector worldSizeVoxels)
 	const int noWorldChunks = worldSizeChunks.X * worldSizeChunks.Y * worldSizeChunks.Z;
 	World.Chunks.Reset();
 	World.Chunks.AddZeroed(noWorldChunks);
+
+	// TODO: Call world builder
+
+	// TODO: setup mesh builder
+	MeshBuilder = new Voxel::FMarchingCubesMeshBuilder;
+	MeshBuilder->Init(this);
 
 	return true;
 }

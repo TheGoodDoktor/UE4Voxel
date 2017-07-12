@@ -1,6 +1,8 @@
 #pragma once
 
 #include "VoxelTypes.h"
+#include "MeshBuilders/IMeshBuilder.h"
+#include "WorldBuilders/IWorldBuilder.h"
 
 // could make this a UObject?
 class FVoxelEngine
@@ -32,4 +34,7 @@ private:
 	Voxel::FBlock			OutsideBlock;	// block to use when outside of world
 
 	TArray<Voxel::FChunk *>	DirtyChunks;	// list of dirty chunks that need re-meshing
+
+	Voxel::IMeshBuilder *		MeshBuilder;
+	Voxel::IWorldBuilder *		WorldBuilder;
 };

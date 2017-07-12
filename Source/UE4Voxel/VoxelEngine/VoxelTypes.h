@@ -1,3 +1,5 @@
+#pragma once
+
 #include "UE4Voxel.h"
 
 namespace Voxel
@@ -47,7 +49,13 @@ struct FChunk
 	FBlock *	BlockData;	// 3D array of blocks
 	FWorld *	World;		// Which world this chunk belongs to
 	
-	// TODO: Add data to produce mesh
+	// Data to produce mesh
+	TArray<FVector>		Vertices;
+	TArray<int32>		Triangles;
+	TArray<FVector2D>	UVs;
+
+	//TArray<FVector>				Normals;
+	//TArray<FProcMeshTangent>	Tangents;
 };
 
 // voxel world
