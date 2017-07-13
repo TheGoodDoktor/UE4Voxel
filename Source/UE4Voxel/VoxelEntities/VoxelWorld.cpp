@@ -1,7 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "VoxelWorld.h"
-
+#include "WorldBuilders/WorldBuilderBase.h"
+#include "MeshBuilders/MeshBuilderBase.h"
 
 // Sets default values
 AVoxelWorld::AVoxelWorld()
@@ -35,11 +36,22 @@ void AVoxelWorld::BeginPlay()
 	World.Chunks.Reset();
 	World.Chunks.AddZeroed(noWorldChunks);
 
-	// TODO: Call world builder
+	// Create world builder
+	if (WorldBuilderClass != nullptr)
+	{
+		WorldBuilder = NewObject<UWorldBuilderBase>(this, WorldBuilderClass);
+		WorldBuilder->RegisterComponent();
+	}
 
-	// TODO: setup mesh builder
-	//MeshBuilder = new Voxel::FMarchingCubesMeshBuilder;
-	//MeshBuilder->Init(this);
+	// Create mesh builder
+	if (MeshBuilderClass != nullptr)
+	{
+		MeshBuilder = NewObject<UMeshBuilderBase>(this, MeshBuilderClass);
+		MeshBuilder->RegisterComponent();
+	}
+
+	// TODO: Build World
+	//World.
 }
 
 // Called every frame

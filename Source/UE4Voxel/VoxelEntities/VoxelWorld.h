@@ -42,11 +42,11 @@ public:
 
 	// Which mesh builder to use
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<class UMeshBuilderBase>	MeshBuilder;
+	TSubclassOf<class UMeshBuilderBase>	MeshBuilderClass;
 	
 	// Which world builder to use
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<class UWorldBuilderBase>	WorldBuilder;
+	TSubclassOf<class UWorldBuilderBase>	WorldBuilderClass;
 
 	// private data & methods
 private:
@@ -63,6 +63,9 @@ private:
 	const Voxel::FChunk*	GetChunkAt(FIntVector chuckPos) const;
 	Voxel::FChunk*			CreateChunkAt(FIntVector chuckPos);
 	bool					AddDirtyChunk(Voxel::FChunk *pChunk);
+
+	class UMeshBuilderBase*		MeshBuilder;
+	class UWorldBuilderBase*	WorldBuilder;
 
 	Voxel::FWorld			World;
 	Voxel::FBlock			OutsideBlock;	// block to use when outside of world

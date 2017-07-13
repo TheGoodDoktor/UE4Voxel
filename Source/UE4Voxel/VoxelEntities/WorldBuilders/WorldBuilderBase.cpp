@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "WorldBuilderBase.h"
-
+#include "../VoxelWorld.h"
 
 // Sets default values for this component's properties
 UWorldBuilderBase::UWorldBuilderBase()
@@ -20,7 +20,8 @@ void UWorldBuilderBase::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	
+	World = Cast<AVoxelWorld>(GetOwner());
+	check(World != nullptr);
 }
 
 
