@@ -1,24 +1,16 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
 #include "MarchingCubesMeshBuilder.h"
-#include "../VoxelTypes.h"
-#include "../VoxelEngine.h"
-#include "UE4Voxel.h"
 
+#include "../VoxelWorld.h"
 #include "MarchingCubesLUT.h"
-
-namespace Voxel
-{
 
 FVector VertexInterp(float isolevel, FVector p1, FVector p2, float valp1, float valp2);
 
-void FMarchingCubesMeshBuilder::Init(FVoxelEngine *pEngine)
-{
-	Engine = pEngine;
-}
-
-void FMarchingCubesMeshBuilder::BuildMeshForChunk(FChunk* pChunk)
+void UMarchingCubesMeshBuilder::BuildMeshForChunk(Voxel::FChunk* pChunk)
 {
 	int index = 0;
-	
+
 	// reset arrays
 	pChunk->Vertices.Reset();
 	pChunk->UVs.Reset();
@@ -26,48 +18,49 @@ void FMarchingCubesMeshBuilder::BuildMeshForChunk(FChunk* pChunk)
 
 	//Debug.Log("Building mesh for chunk at " + chunk.WorldPos.ToString());
 
-	for (int x = 0; x < ChunkSizeBlocks; x++)
+	int32 chunkSizeBlocks = World->GetChunkSizeInBlocks();
+
+	for (int x = 0; x < chunkSizeBlocks; x++)
 	{
 		int blockX = pChunk->WorldPos.X + x;
-		for (int y = 0; y < ChunkSizeBlocks; y++)
+		for (int y = 0; y < chunkSizeBlocks; y++)
 		{
 			int blockY = pChunk->WorldPos.Y + y;
-			for (int z = 0; z < ChunkSizeBlocks; z++)
+			for (int z = 0; z < chunkSizeBlocks; z++)
 			{
 				int blockZ = pChunk->WorldPos.Z + z;
 				// x,y,z is co-ord of block inside chunk
 				// blockX,blockY,blockZ is co-ord of block in world
-				index = BuildMeshForBlock(FIntVector(blockX,blockY,blockZ),FVector(x,y,z), pChunk, index);
+				index = BuildMeshForBlock(FIntVector(blockX, blockY, blockZ), FVector(x, y, z), pChunk, index);
 			}
 		}
 	}
-
-	//Debug.Log("Vertices: " + chunk.Vertices.Count);
 }
 
+
 // Build the mesh for a given block within a chunk
-int FMarchingCubesMeshBuilder::BuildMeshForBlock(const FIntVector& worldPos, const FVector& chunkPos, FChunk* pChunk, int index)
+int UMarchingCubesMeshBuilder::BuildMeshForBlock(const FIntVector& worldPos, const FVector& chunkPos, Voxel::FChunk* pChunk, int index)
 {
 	//FBlock currentBlock = pChunk->BlockData[];
 	FVector points[8];
 	FVector vertlist[12];
 	float isoLevel = 0.8f;  // TODO: proper value
-								
 	float density[8];
-		
+	const float blockSize = World->BlockSize;
+
 	CalculateDensitiesForBlock(worldPos, density);// Fill in vertex density values
 
-	// Fill in block points
+												  // Fill in block points
 	FVector offset(0.5f, 0.5f, 0.5f);
-	points[0] = (chunkPos + FVector(0, 0, 1) + offset) * BlockSize;
-	points[1] = (chunkPos + FVector(1, 0, 1) + offset) * BlockSize;
-	points[2] = (chunkPos + FVector(1, 0, 0) + offset) * BlockSize;
-	points[3] = (chunkPos + FVector(0, 0, 0) + offset) * BlockSize;
+	points[0] = (chunkPos + FVector(0, 0, 1) + offset) * blockSize;
+	points[1] = (chunkPos + FVector(1, 0, 1) + offset) * blockSize;
+	points[2] = (chunkPos + FVector(1, 0, 0) + offset) * blockSize;
+	points[3] = (chunkPos + FVector(0, 0, 0) + offset) * blockSize;
 
-	points[4] = (chunkPos + FVector(0, 1, 1) + offset) * BlockSize;
-	points[5] = (chunkPos + FVector(1, 1, 1) + offset) * BlockSize;
-	points[6] = (chunkPos + FVector(1, 1, 0) + offset) * BlockSize;
-	points[7] = (chunkPos + FVector(0, 1, 0) + offset) * BlockSize;
+	points[4] = (chunkPos + FVector(0, 1, 1) + offset) * blockSize;
+	points[5] = (chunkPos + FVector(1, 1, 1) + offset) * blockSize;
+	points[6] = (chunkPos + FVector(1, 1, 0) + offset) * blockSize;
+	points[7] = (chunkPos + FVector(0, 1, 0) + offset) * blockSize;
 
 	int cubeindex = 0;
 	if (density[0] < isoLevel) cubeindex |= 1;
@@ -129,14 +122,14 @@ int FMarchingCubesMeshBuilder::BuildMeshForBlock(const FIntVector& worldPos, con
 		pChunk->Vertices.Add(vertA);
 		pChunk->Vertices.Add(vertB);
 		pChunk->Vertices.Add(vertC);
-		
+
 		// TODO: UVs ?
 
 		// index triangles
 		pChunk->Triangles.Add(index++);
 		pChunk->Triangles.Add(index++);
 		pChunk->Triangles.Add(index++);
-		
+
 		/*
 		chunk.Vertices.Add(vertA);
 		chunk.Vertices.Add(vertB);
@@ -158,6 +151,22 @@ int FMarchingCubesMeshBuilder::BuildMeshForBlock(const FIntVector& worldPos, con
 
 	return index;
 }
+
+
+void UMarchingCubesMeshBuilder::CalculateDensitiesForBlock(FIntVector worldPos, float *density)
+{
+	density[0] = World->GetBlockAt(worldPos + FIntVector(0, 0, 1)).Density;
+	density[1] = World->GetBlockAt(worldPos + FIntVector(1, 0, 1)).Density;
+	density[2] = World->GetBlockAt(worldPos + FIntVector(1, 0, 0)).Density;
+	density[3] = World->GetBlockAt(worldPos + FIntVector(0, 0, 0)).Density;
+	density[4] = World->GetBlockAt(worldPos + FIntVector(0, 1, 1)).Density;
+	density[5] = World->GetBlockAt(worldPos + FIntVector(1, 1, 1)).Density;
+	density[6] = World->GetBlockAt(worldPos + FIntVector(1, 1, 0)).Density;
+	density[7] = World->GetBlockAt(worldPos + FIntVector(0, 1, 0)).Density;
+}
+
+
+// Util Funcs
 
 FVector VertexInterp(float isolevel, FVector p1, FVector p2, float valp1, float valp2)
 {
@@ -181,21 +190,3 @@ FVector VertexInterp(float isolevel, FVector p1, FVector p2, float valp1, float 
 
 	return(p);
 }
-
-void FMarchingCubesMeshBuilder::CalculateDensitiesForBlock(FIntVector worldPos, float density[])
-{
-	check(Engine != nullptr);
-
-	density[0] = Engine->GetBlockAt(worldPos + FIntVector(0, 0, 1)).Density;
-	density[1] = Engine->GetBlockAt(worldPos + FIntVector(1, 0, 1)).Density;
-	density[2] = Engine->GetBlockAt(worldPos + FIntVector(1, 0, 0)).Density;
-	density[3] = Engine->GetBlockAt(worldPos + FIntVector(0, 0, 0)).Density;
-	density[4] = Engine->GetBlockAt(worldPos + FIntVector(0, 1, 1)).Density;
-	density[5] = Engine->GetBlockAt(worldPos + FIntVector(1, 1, 1)).Density;
-	density[6] = Engine->GetBlockAt(worldPos + FIntVector(1, 1, 0)).Density;
-	density[7] = Engine->GetBlockAt(worldPos + FIntVector(0, 1, 0)).Density;
-}
-
-}// namespace Voxel
-
-

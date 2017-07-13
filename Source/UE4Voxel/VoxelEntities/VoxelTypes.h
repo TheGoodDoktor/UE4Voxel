@@ -48,6 +48,15 @@ struct FChunk
 	FIntVector  ChunkPos;	// position of chunk in world chunk grid 
 	FBlock *	BlockData;	// 3D array of blocks
 	FWorld *	World;		// Which world this chunk belongs to
+
+	const int kChunkSize = 16;
+	const int kChunkSizeShift = 4;
+	const int kChunkSizeMask = 0xf;
+
+	Voxel::FBlock &GetBlockAt(FIntVector blockPos)
+	{
+		return BlockData[blockPos.X + (blockPos.Y << kChunkSizeShift) + (blockPos.Y << (kChunkSizeShift + kChunkSizeShift))];
+	}
 	
 	// Data to produce mesh
 	TArray<FVector>		Vertices;

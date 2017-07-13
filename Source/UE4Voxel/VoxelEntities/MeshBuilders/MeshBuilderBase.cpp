@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "MeshBuilderBase.h"
-
+#include "../VoxelWorld.h"
 
 // Sets default values for this component's properties
 UMeshBuilderBase::UMeshBuilderBase()
@@ -20,7 +20,8 @@ void UMeshBuilderBase::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	
+	World = Cast<AVoxelWorld>(GetOwner());
+	check(World != nullptr);	
 }
 
 
