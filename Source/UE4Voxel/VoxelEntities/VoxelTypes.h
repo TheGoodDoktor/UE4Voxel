@@ -2,6 +2,8 @@
 
 #include "UE4Voxel.h"
 
+class UProceduralMeshComponent;
+
 namespace Voxel
 {
 
@@ -49,9 +51,9 @@ struct FChunk
 	FBlock *	BlockData;	// 3D array of blocks
 	FWorld *	World;		// Which world this chunk belongs to
 
-	const int kChunkSize = 16;
-	const int kChunkSizeShift = 4;
-	const int kChunkSizeMask = 0xf;
+	static const int kChunkSize = 16;
+	static const int kChunkSizeShift = 4;
+	static const int kChunkSizeMask = 0xf;
 
 	Voxel::FBlock &GetBlockAt(FIntVector blockPos)
 	{
@@ -65,6 +67,8 @@ struct FChunk
 
 	//TArray<FVector>				Normals;
 	//TArray<FProcMeshTangent>	Tangents;
+
+	UProceduralMeshComponent *	MeshComponent;
 };
 
 // voxel world

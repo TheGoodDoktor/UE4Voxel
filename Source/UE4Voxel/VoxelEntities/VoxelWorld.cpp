@@ -3,6 +3,7 @@
 #include "VoxelWorld.h"
 #include "WorldBuilders/WorldBuilderBase.h"
 #include "MeshBuilders/MeshBuilderBase.h"
+#include "ProceduralMeshComponent.h"
 
 // Sets default values
 AVoxelWorld::AVoxelWorld()
@@ -50,14 +51,29 @@ void AVoxelWorld::BeginPlay()
 		MeshBuilder->RegisterComponent();
 	}
 
-	// TODO: Build World
-	//World.
+	// Build World
+	if (WorldBuilder != nullptr)
+	{
+		for (int x = 0; x < worldSizeChunks.X; x++)
+		{
+			for (int y = 0; y < worldSizeChunks.Y; y++)
+			{
+				for (int z = 0; z < worldSizeChunks.Z; z++)
+				{
+					Voxel::FChunk* pChunk = CreateChunkAt(FIntVector(x * Voxel::FChunk::kChunkSize, y * Voxel::FChunk::kChunkSize, z * Voxel::FChunk::kChunkSize));
+					WorldBuilder->BuildWorldChunk(pChunk);
+				}
+			}
+		}
+	}
 }
 
 // Called every frame
 void AVoxelWorld::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	// TODO: rebuild dirty chunks
 
 }
 
@@ -83,8 +99,10 @@ Voxel::FChunk*	AVoxelWorld::CreateChunkAt(FIntVector chunkPos)
 	pChunk->BlockData = new Voxel::FBlock[kChunkSize * kChunkSize * kChunkSize];	// TODO: use our own allocator
 	World.Chunks[chunkPos.X + (chunkPos.Y * World.WorldSizeChunks.X) + (chunkPos.Z * World.WorldSizeChunks.X * World.WorldSizeChunks.Y)] = pChunk;
 
-	// TODO: Also create mesh component
-
+	// Also create mesh component
+	pChunk->MeshComponent = NewObject<UProceduralMeshComponent>(this);
+	pChunk->MeshComponent->RegisterComponent();
+	pChunk->MeshComponent->AttachToComponent(RootComponent,FAttachmentTransformRules::KeepRelativeTransform);
 	return pChunk;
 }
 
@@ -133,14 +151,14 @@ bool AVoxelWorld::SetBlockAt(FIntVector voxelPos, Voxel::FBlock block)
 	if (IsPosOutsideWorld(voxelPos))
 		return false;
 
-	FIntVector chunkPos(voxelPos.X >> kChunkSizeShift, voxelPos.Y >> kChunkSizeShift, voxelPos.Z >> kChunkSizeShift);
+	const FIntVector chunkPos(voxelPos.X >> kChunkSizeShift, voxelPos.Y >> kChunkSizeShift, voxelPos.Z >> kChunkSizeShift);
 	Voxel::FChunk* pChunk = GetChunkAt(chunkPos);
 
 	// If there is no chunk at the position then create one
 	if (pChunk == nullptr)
 		pChunk = CreateChunkAt(chunkPos);
 
-	FIntVector blockPos(voxelPos.X & kChunkSizeMask, voxelPos.Y & kChunkSizeMask, voxelPos.Z & kChunkSizeMask);
+	const FIntVector blockPos(voxelPos.X & kChunkSizeMask, voxelPos.Y & kChunkSizeMask, voxelPos.Z & kChunkSizeMask);
 	GetBlockFromChunk(pChunk, blockPos) = block;
 
 	// Mark chunk to have its mesh rebuilt

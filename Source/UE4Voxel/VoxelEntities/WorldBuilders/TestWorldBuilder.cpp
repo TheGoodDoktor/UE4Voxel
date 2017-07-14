@@ -5,7 +5,7 @@
 
 void UTestWorldBuilder::BeginPlay()
 {
-
+	Super::BeginPlay();
 }
 
 void UTestWorldBuilder::BuildWorldChunk(Voxel::FChunk* pChunk)
