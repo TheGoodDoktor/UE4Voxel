@@ -21,7 +21,7 @@ void UTestWorldBuilder::BuildWorldChunk(Voxel::FChunk* pChunk)
 		for (int y = 0; y<chunkSize; y++)
 		{
 			//const int height = ((x == chunkSize /2) && (y == chunkSize / 2)) ? 10 : 1;// FMath::RandRange(1, 10);
-			const int height = FMath::RandRange(1, chunkSize - 1);
+			const int height = FMath::RandRange(1, 5);
 			
 			for (int z = 0; z<height; z++)
 			{

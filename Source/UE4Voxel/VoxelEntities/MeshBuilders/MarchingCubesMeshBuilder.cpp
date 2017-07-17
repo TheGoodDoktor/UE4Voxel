@@ -109,9 +109,9 @@ int UMarchingCubesMeshBuilder::BuildMeshForBlock(const FIntVector& worldPos, con
 		//Vector3 vertA = points[1];
 		//Vector3 vertB = points[2];
 		//Vector3 vertC = points[3]; 
-		FVector vertA = vertlist[GTriTable[cubeindex][i + 0]];
+		FVector vertA = vertlist[GTriTable[cubeindex][i + 2]];
 		FVector vertB = vertlist[GTriTable[cubeindex][i + 1]];
-		FVector vertC = vertlist[GTriTable[cubeindex][i + 2]];
+		FVector vertC = vertlist[GTriTable[cubeindex][i + 0]];
 
 		//Vector3 normal = Vector3.Cross(vertB - vertA, vertC - vertA).normalized;
 		//Debug.Log("vert A: " + vertA.ToString());
