@@ -48,88 +48,100 @@ int UBasicMeshBuilder::BuildMeshForBlock(const FIntVector& chunkPos, Voxel::FChu
 	if ((currentBlock.IsTransparent() == false))
 		return index;
 
-	FIntVector worldPos = chunkPos + pChunk->WorldPos;
-	FVector chunkPosF = FVector(chunkPos);
+	const FIntVector worldPos = chunkPos + pChunk->WorldPos;	// get world position of this block
+	const FVector chunkPosF = FVector(chunkPos);
 	//byte lightAmount = 255;//currentBlock.LightAmount;
 
 	// Check surround blocks, if they aren't transparent then they have an outside face
 
-	// Bottom
-	Voxel::FBlock block = World->GetBlockAt(worldPos + FIntVector(0, 1, 0));
+	Voxel::FBlock faceBlock;
+		
+	/*
+	// X positive face
+	faceBlock = World->GetBlockAt(worldPos + FIntVector(-1, 0, 0));
 
-	if (block.IsTransparent() == false)
+	if (faceBlock.IsTransparent() == false)
 	{
-		AddBlockFace(chunkPosF + FVector(1, 0, 0), chunkPosF + FVector(1, 0, 1),
-			chunkPosF + FVector(0, 0, 1), chunkPosF,
-			pChunk, index, block.Type, Voxel::EBlockFace::Bottom);
+		AddBlockFace(
+			chunkPosF + FVector(0, 0, 0), 
+			chunkPosF + FVector(0, 0, 1),
+			chunkPosF + FVector(0, 1, 1), 
+			chunkPosF + FVector(0, 1, 0),
+			pChunk, index, faceBlock.Type, Voxel::EBlockFace::XP);
 		index += 4;
 	}
 
-/* TODO: Fix this up
-	// West
-	block = m_WorldData.GetBlock(blockX - 1, blockY, blockZ);
-	if (block.IsTransparent() == false)
+	// X negative face
+	faceBlock = World->GetBlockAt(worldPos + FIntVector(1, 0, 0));
+
+	if (faceBlock.IsTransparent() == false)
 	{
-		AddBlockFace(new IntVec3(x, y, z),
-			new IntVec3(x, y, z + 1),
-			new IntVec3(x, y + 1, z + 1),
-			new IntVec3(x, y + 1, z),
-			0.8f, chunk, index, block.m_Type, BlockFace.West, lightAmount);
+		AddBlockFace(
+			chunkPosF + FVector(1, 0, 0),
+			chunkPosF + FVector(1, 0, 1),
+			chunkPosF + FVector(1, 1, 1),
+			chunkPosF + FVector(1, 1, 0),
+			pChunk, index, faceBlock.Type, Voxel::EBlockFace::XN);
 		index += 4;
 	}
 
-	// Top
-	block = m_WorldData.GetBlock(blockX, blockY + 1, blockZ);
-	if (block.IsTransparent() == false)
-	{
-		AddBlockFace(new IntVec3(x, y + 1, z),
-			new IntVec3(x, y + 1, z + 1),
-			new IntVec3(x + 1, y + 1, z + 1),
-			new IntVec3(x + 1, y + 1, z),
-			0.9f, chunk, index, block.m_Type, BlockFace.Top, lightAmount);
+	// y positive face
+	faceBlock = World->GetBlockAt(worldPos + FIntVector(0, -1, 0));
 
+	if (faceBlock.IsTransparent() == false)
+	{
+		AddBlockFace(
+			chunkPosF + FVector(0, 0, 0),
+			chunkPosF + FVector(0, 0, 1),
+			chunkPosF + FVector(1, 0, 1),
+			chunkPosF + FVector(1, 0, 0),
+			pChunk, index, faceBlock.Type, Voxel::EBlockFace::YP);
 		index += 4;
 	}
 
-	// East 
-	block = m_WorldData.GetBlock(blockX + 1, blockY, blockZ);
-	if (block.IsTransparent() == false)
+	// y negative face
+	faceBlock = World->GetBlockAt(worldPos + FIntVector(0, 1, 0));
+
+	if (faceBlock.IsTransparent() == false)
 	{
-		AddBlockFace(new IntVec3(x + 1, y + 1, z),
-			new IntVec3(x + 1, y + 1, z + 1),
-			new IntVec3(x + 1, y, z + 1),
-			new IntVec3(x + 1, y, z),
-			0.7f, chunk, index, block.m_Type, BlockFace.East, lightAmount);
-
-		index += 4;
-	}
-
-	// North
-	block = m_WorldData.GetBlock(blockX, blockY, blockZ + 1);
-	if (block.IsTransparent() == false)
-	{
-		AddBlockFace(new IntVec3(x + 1, y, z + 1),
-			new IntVec3(x + 1, y + 1, z + 1),
-			new IntVec3(x, y + 1, z + 1),
-			new IntVec3(x, y, z + 1),
-			0.4f, chunk, index, block.m_Type, BlockFace.North, lightAmount);
-
-		index += 4;
-	}
-
-	// South
-	block = m_WorldData.GetBlock(blockX, blockY, blockZ - 1);
-	if (block.IsTransparent() == false)
-	{
-		AddBlockFace(new IntVec3(x, y, z),
-			new IntVec3(x, y + 1, z),
-			new IntVec3(x + 1, y + 1, z),
-			new IntVec3(x + 1, y, z),
-			1.0f, chunk, index, block.m_Type, BlockFace.South, lightAmount);
-
+		AddBlockFace(
+			chunkPosF + FVector(0, 0, 0),
+			chunkPosF + FVector(0, 0, 1),
+			chunkPosF + FVector(0, 1, 1),
+			chunkPosF + FVector(0, 1, 0),
+			pChunk, index, faceBlock.Type, Voxel::EBlockFace::YN);
 		index += 4;
 	}
 	*/
+
+	// z positive face
+	faceBlock = World->GetBlockAt(worldPos + FIntVector(0, 0, -1));
+
+	if (faceBlock.IsTransparent() == false)
+	{
+		AddBlockFace(
+			chunkPosF + FVector(0, 0, 0),
+			chunkPosF + FVector(0, 1, 0),
+			chunkPosF + FVector(1, 1, 0),
+			chunkPosF + FVector(1, 0, 0),
+			pChunk, index, faceBlock.Type, Voxel::EBlockFace::ZP);
+		index += 4;
+	}
+
+	// z negative face
+	faceBlock = World->GetBlockAt(worldPos + FIntVector(0, 0, 1));
+
+	if (faceBlock.IsTransparent() == false)
+	{
+		AddBlockFace(
+			chunkPosF + FVector(0, 0, 1),
+			chunkPosF + FVector(0, 1, 1),
+			chunkPosF + FVector(1, 1, 1),
+			chunkPosF + FVector(1, 0, 1),
+			pChunk, index, faceBlock.Type, Voxel::EBlockFace::ZN);
+		index += 4;
+	}
+
 	return index;
 }
 

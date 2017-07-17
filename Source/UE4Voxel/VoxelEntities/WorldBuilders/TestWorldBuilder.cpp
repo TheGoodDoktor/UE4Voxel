@@ -6,6 +6,10 @@
 void UTestWorldBuilder::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Setup solid block
+	SolidBlock.Density = 1.0f;
+	SolidBlock.Type = 1;
 }
 
 void UTestWorldBuilder::BuildWorldChunk(Voxel::FChunk* pChunk)
@@ -16,7 +20,7 @@ void UTestWorldBuilder::BuildWorldChunk(Voxel::FChunk* pChunk)
 	{
 		for (int y = 0; y<chunkSize; y++)
 		{
-			const int height = FMath::RandRange(1, 10);
+			const int height = 1;// FMath::RandRange(1, 10);
 
 			for (int z = 0; z<height; z++)
 			{

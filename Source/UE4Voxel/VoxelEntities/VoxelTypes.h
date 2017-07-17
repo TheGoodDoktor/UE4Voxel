@@ -18,12 +18,12 @@ enum class EBlockType : uint8
 
 enum class EBlockFace : uint8
 {
-	Top = 0,
-	Bottom,
-	North,
-	South,
-	East,
-	West,
+	XP = 0,
+	XN,
+	YP,
+	YN,
+	ZP,
+	ZN,
 
 	Count
 };
@@ -36,6 +36,8 @@ struct FWorld;
 // individual voxel
 struct FBlock
 {
+	FBlock() : Type(0), Density(0) {}	// default to empty block
+
 	uint8 Type;
 	float Density;
 	
@@ -45,20 +47,28 @@ struct FBlock
 // chunk of voxels - a cubic subsection of the world
 struct FChunk
 {
+	static const int kChunkSize = 16;
+	static const int kChunkSizeShift = 4;
+	static const int kChunkSizeMask = 0xf;
+
+	FChunk() 
+		: IsDirty(false)
+		, BlockData(nullptr)
+		, World(nullptr)
+		, MeshComponent(nullptr)
+	{}
+
+	Voxel::FBlock &GetBlockAt(FIntVector blockPos)
+	{
+		return BlockData[blockPos.X + (blockPos.Y << kChunkSizeShift) + (blockPos.Z << (kChunkSizeShift + kChunkSizeShift))];
+	}
+
 	bool		IsDirty;	// chunk is dirty and needs re-meshing
 	FIntVector 	WorldPos;	// World position of chunk bottom corner in voxel coords
 	FIntVector  ChunkPos;	// position of chunk in world chunk grid 
 	FBlock *	BlockData;	// 3D array of blocks
 	FWorld *	World;		// Which world this chunk belongs to
 
-	static const int kChunkSize = 16;
-	static const int kChunkSizeShift = 4;
-	static const int kChunkSizeMask = 0xf;
-
-	Voxel::FBlock &GetBlockAt(FIntVector blockPos)
-	{
-		return BlockData[blockPos.X + (blockPos.Y << kChunkSizeShift) + (blockPos.Y << (kChunkSizeShift + kChunkSizeShift))];
-	}
 	
 	// Data to produce mesh
 	TArray<FVector>		Vertices;

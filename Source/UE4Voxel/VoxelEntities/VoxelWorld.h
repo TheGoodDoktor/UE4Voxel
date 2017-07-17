@@ -24,10 +24,10 @@ public:
 
 	// public interface should only be dealing with voxel coords - chunks are implementation details
 	bool			IsPosOutsideWorld(FIntVector pos) const;
-	Voxel::FBlock&	GetBlockAt(FIntVector voxelPos);
+	const Voxel::FBlock&	GetBlockAt(FIntVector voxelPos) const;
 	bool			SetBlockAt(FIntVector voxelPos, Voxel::FBlock block);
 
-	int32			GetChunkSizeInBlocks() const { return kChunkSize; }
+	int32			GetChunkSizeInBlocks() const { return Voxel::FChunk::kChunkSize; }
 	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -50,13 +50,16 @@ public:
 
 	// private data & methods
 private:
-	const int kChunkSize = 16;
-	const int kChunkSizeShift = 4;
-	const int kChunkSizeMask = 0xf;
+
+	const Voxel::FBlock &GetBlockFromChunk(const Voxel::FChunk *pChunk, FIntVector blockPos) const 
+	{
+		const int shiftVal = Voxel::FChunk::kChunkSizeShift;
+		return pChunk->BlockData[blockPos.X + (blockPos.Y << shiftVal) + (blockPos.Y << (shiftVal + shiftVal))];
+	}
 
 	Voxel::FBlock &GetBlockFromChunk(const Voxel::FChunk *pChunk, FIntVector blockPos)
 	{
-		return pChunk->BlockData[blockPos.X + (blockPos.Y << kChunkSizeShift) + (blockPos.Y << (kChunkSizeShift + kChunkSizeShift))];
+		return const_cast<Voxel::FBlock &>( static_cast<const AVoxelWorld&>(*this).GetBlockFromChunk(pChunk, blockPos));
 	}
 
 	Voxel::FChunk*			GetChunkAt(FIntVector chuckPos);
