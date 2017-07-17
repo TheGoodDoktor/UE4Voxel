@@ -26,7 +26,7 @@ void AVoxelWorld::BeginPlay()
 	// calculate number of chunks we need for given world size
 	const FIntVector worldSizeChunks(
 		(WorldSize.X >> Voxel::FChunk::kChunkSizeShift) + 1, 
-		(WorldSize.Z >> Voxel::FChunk::kChunkSizeShift) + 1, 
+		(WorldSize.Y >> Voxel::FChunk::kChunkSizeShift) + 1, 
 		(WorldSize.Z >> Voxel::FChunk::kChunkSizeShift) + 1
 	);
 	World.WorldSizeChunks = worldSizeChunks;
@@ -98,14 +98,14 @@ void AVoxelWorld::Tick(float DeltaTime)
 
 }
 
-const Voxel::FChunk*	AVoxelWorld::GetChunkAt(FIntVector chuckPos) const
+const Voxel::FChunk*	AVoxelWorld::GetChunkAt(FIntVector chunkPos) const
 {
-	return World.Chunks[chuckPos.X + (chuckPos.Y * World.WorldSizeChunks.X) + (chuckPos.Z * World.WorldSizeChunks.X * World.WorldSizeChunks.Y)];
+	return World.Chunks[chunkPos.X + (chunkPos.Y * World.WorldSizeChunks.X) + (chunkPos.Z * World.WorldSizeChunks.X * World.WorldSizeChunks.Y)];
 }
 
-Voxel::FChunk*	AVoxelWorld::GetChunkAt(FIntVector chuckPos)
+Voxel::FChunk*	AVoxelWorld::GetChunkAt(FIntVector chunkPos)
 {
-	return World.Chunks[chuckPos.X + (chuckPos.Y * World.WorldSizeChunks.X) + (chuckPos.Z * World.WorldSizeChunks.X * World.WorldSizeChunks.Y)];
+	return const_cast<Voxel::FChunk *>(static_cast<const AVoxelWorld&>(*this).GetChunkAt(chunkPos));
 }
 
 Voxel::FChunk*	AVoxelWorld::CreateChunkAt(FIntVector chunkPos)
@@ -160,13 +160,20 @@ const Voxel::FBlock &AVoxelWorld::GetBlockAt(FIntVector voxelPos) const
 	if (IsPosOutsideWorld(voxelPos))
 		return OutsideBlock;
 
-	const FIntVector chunkPos(voxelPos.X >> Voxel::FChunk::kChunkSizeShift, voxelPos.Y >> Voxel::FChunk::kChunkSizeShift, voxelPos.Z >> Voxel::FChunk::kChunkSizeShift);
+	const FIntVector chunkPos(
+		voxelPos.X >> Voxel::FChunk::kChunkSizeShift, 
+		voxelPos.Y >> Voxel::FChunk::kChunkSizeShift, 
+		voxelPos.Z >> Voxel::FChunk::kChunkSizeShift);
 
 	const Voxel::FChunk* pChunk = GetChunkAt(chunkPos);
 	if (pChunk == nullptr)
 		return OutsideBlock;
 
-	const FIntVector blockPos(voxelPos.X & Voxel::FChunk::kChunkSizeMask, voxelPos.Y & Voxel::FChunk::kChunkSizeMask, voxelPos.Z & Voxel::FChunk::kChunkSizeMask);
+	const FIntVector blockPos(
+		voxelPos.X & Voxel::FChunk::kChunkSizeMask, 
+		voxelPos.Y & Voxel::FChunk::kChunkSizeMask, 
+		voxelPos.Z & Voxel::FChunk::kChunkSizeMask);
+
 	return GetBlockFromChunk(pChunk, blockPos);
 }
 

@@ -54,7 +54,7 @@ private:
 	const Voxel::FBlock &GetBlockFromChunk(const Voxel::FChunk *pChunk, FIntVector blockPos) const 
 	{
 		const int shiftVal = Voxel::FChunk::kChunkSizeShift;
-		return pChunk->BlockData[blockPos.X + (blockPos.Y << shiftVal) + (blockPos.Y << (shiftVal + shiftVal))];
+		return pChunk->BlockData[blockPos.X + (blockPos.Y << shiftVal) + (blockPos.Z << (shiftVal + shiftVal))];
 	}
 
 	Voxel::FBlock &GetBlockFromChunk(const Voxel::FChunk *pChunk, FIntVector blockPos)

@@ -56,17 +56,17 @@ int UBasicMeshBuilder::BuildMeshForBlock(const FIntVector& chunkPos, Voxel::FChu
 
 	Voxel::FBlock faceBlock;
 		
-	/*
+	
 	// X positive face
 	faceBlock = World->GetBlockAt(worldPos + FIntVector(-1, 0, 0));
 
 	if (faceBlock.IsTransparent() == false)
 	{
 		AddBlockFace(
-			chunkPosF + FVector(0, 0, 0), 
-			chunkPosF + FVector(0, 0, 1),
-			chunkPosF + FVector(0, 1, 1), 
 			chunkPosF + FVector(0, 1, 0),
+			chunkPosF + FVector(0, 1, 1), 
+			chunkPosF + FVector(0, 0, 1),
+			chunkPosF + FVector(0, 0, 0), 
 			pChunk, index, faceBlock.Type, Voxel::EBlockFace::XP);
 		index += 4;
 	}
@@ -105,14 +105,14 @@ int UBasicMeshBuilder::BuildMeshForBlock(const FIntVector& chunkPos, Voxel::FChu
 	if (faceBlock.IsTransparent() == false)
 	{
 		AddBlockFace(
-			chunkPosF + FVector(0, 0, 0),
-			chunkPosF + FVector(0, 0, 1),
+			chunkPosF + FVector(1, 1, 0),
+			chunkPosF + FVector(1, 1, 1),
 			chunkPosF + FVector(0, 1, 1),
 			chunkPosF + FVector(0, 1, 0),
 			pChunk, index, faceBlock.Type, Voxel::EBlockFace::YN);
 		index += 4;
 	}
-	*/
+	
 
 	// z positive face
 	faceBlock = World->GetBlockAt(worldPos + FIntVector(0, 0, -1));
@@ -120,10 +120,10 @@ int UBasicMeshBuilder::BuildMeshForBlock(const FIntVector& chunkPos, Voxel::FChu
 	if (faceBlock.IsTransparent() == false)
 	{
 		AddBlockFace(
-			chunkPosF + FVector(0, 0, 0),
-			chunkPosF + FVector(0, 1, 0),
-			chunkPosF + FVector(1, 1, 0),
 			chunkPosF + FVector(1, 0, 0),
+			chunkPosF + FVector(1, 1, 0),
+			chunkPosF + FVector(0, 1, 0),
+			chunkPosF + FVector(0, 0, 0),
 			pChunk, index, faceBlock.Type, Voxel::EBlockFace::ZP);
 		index += 4;
 	}
