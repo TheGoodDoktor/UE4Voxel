@@ -20,7 +20,10 @@ void UBasicMeshBuilder::BuildMeshForChunk(Voxel::FChunk* pChunk)
 
 	// reset arrays
 	pChunk->Vertices.Reset();
+	pChunk->Normals.Reset();
+	pChunk->Tangents.Reset();
 	pChunk->UVs.Reset();
+	pChunk->Colours.Reset();
 	pChunk->Triangles.Reset();
 
 	//Debug.Log("Building mesh for chunk at " + chunk.WorldPos.ToString());

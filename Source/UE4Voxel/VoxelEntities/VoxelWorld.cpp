@@ -4,6 +4,7 @@
 #include "WorldBuilders/WorldBuilderBase.h"
 #include "MeshBuilders/MeshBuilderBase.h"
 #include "ProceduralMeshComponent.h"
+#include "KismetProceduralMeshLibrary.h"
 
 // Sets default values
 AVoxelWorld::AVoxelWorld()
@@ -84,10 +85,12 @@ void AVoxelWorld::Tick(float DeltaTime)
 		for (Voxel::FChunk* pChunk : DirtyChunks)
 		{
 			MeshBuilder->BuildMeshForChunk(pChunk);
-			// TODO: setup mesh component
+			// Setup mesh component
 			TArray<FVector> normals;
 			TArray<FColor> colours; 
 			TArray<FProcMeshTangent> tangents;
+
+			//UKismetProceduralMeshLibrary::CalculateTangentsForMesh(pChunk->Vertices, pChunk->Triangles, pChunk->UVs,normals,tangents);
 			
 			pChunk->MeshComponent->CreateMeshSection(0, pChunk->Vertices, pChunk->Triangles, normals, pChunk->UVs, colours, tangents,true);
 

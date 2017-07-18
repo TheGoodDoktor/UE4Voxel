@@ -13,7 +13,10 @@ void UMarchingCubesMeshBuilder::BuildMeshForChunk(Voxel::FChunk* pChunk)
 
 	// reset arrays
 	pChunk->Vertices.Reset();
+	pChunk->Normals.Reset();
+	pChunk->Tangents.Reset();
 	pChunk->UVs.Reset();
+	pChunk->Colours.Reset();
 	pChunk->Triangles.Reset();
 
 	//Debug.Log("Building mesh for chunk at " + chunk.WorldPos.ToString());
@@ -113,7 +116,8 @@ int UMarchingCubesMeshBuilder::BuildMeshForBlock(const FIntVector& worldPos, con
 		FVector vertB = vertlist[GTriTable[cubeindex][i + 1]];
 		FVector vertC = vertlist[GTriTable[cubeindex][i + 0]];
 
-		//Vector3 normal = Vector3.Cross(vertB - vertA, vertC - vertA).normalized;
+		FVector normal = FVector::CrossProduct(vertB - vertA, vertC - vertA);
+		normal.Normalize();
 		//Debug.Log("vert A: " + vertA.ToString());
 		//Debug.Log("vert B: " + vertB.ToString());
 		//Debug.Log("vert C: " + vertC.ToString());
@@ -122,6 +126,11 @@ int UMarchingCubesMeshBuilder::BuildMeshForBlock(const FIntVector& worldPos, con
 		pChunk->Vertices.Add(vertA);
 		pChunk->Vertices.Add(vertB);
 		pChunk->Vertices.Add(vertC);
+
+		// normals
+		pChunk->Normals.Add(normal);
+		pChunk->Normals.Add(normal);
+		pChunk->Normals.Add(normal);
 
 		// TODO: UVs ?
 

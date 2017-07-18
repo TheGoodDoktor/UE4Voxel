@@ -1,6 +1,7 @@
 #pragma once
 
 #include "UE4Voxel.h"
+#include "ProceduralMeshComponent.h"
 
 class UProceduralMeshComponent;
 
@@ -74,6 +75,9 @@ struct FChunk
 	TArray<FVector>		Vertices;
 	TArray<int32>		Triangles;
 	TArray<FVector2D>	UVs;
+	TArray<FVector>		Normals;
+	TArray<FColor>		Colours;
+	TArray<FProcMeshTangent> Tangents;
 
 	//TArray<FVector>				Normals;
 	//TArray<FProcMeshTangent>	Tangents;

@@ -51,7 +51,7 @@ void USimpleWorldBuilder::BuildWorldChunk(Voxel::FChunk* pChunk)
 
 void USimpleWorldBuilder::GenerateTerrain(Voxel::FChunk* pChunk, int blockXInChunk, int blockYInChunk, int blockX, int blockY, int worldHeightInBlocks)
 {
-	const int groundHeightInChunk = floor(GetHeightField(blockX, blockY)) - pChunk->WorldPos.Y;
+	const int groundHeightInChunk = floor(GetHeightField(blockX, blockY)) - pChunk->WorldPos.Z;
 
 	for (int z = 0; z < Voxel::FChunk::kChunkSize; z++)
 	{
@@ -59,7 +59,7 @@ void USimpleWorldBuilder::GenerateTerrain(Voxel::FChunk* pChunk, int blockXInChu
 		float density = bUnderground ? 1.0f : 0.0f;
 		int blockType = bUnderground ? 1 : 0;
 
-		/*if (bUnderground)    // are we underground - check for caves
+		if (bUnderground)    // are we underground - check for caves
 		{
 			if (BuildCaves)
 			{
@@ -87,7 +87,7 @@ void USimpleWorldBuilder::GenerateTerrain(Voxel::FChunk* pChunk, int blockXInChu
 			// Work out above ground density
 			if (z == groundHeightInChunk)
 				density = GetHeightField(blockX, blockY) - floor(GetHeightField(blockX,blockY));
-		}*/
+		}
 
 		// set block
 		Voxel::FBlock newBlock;
