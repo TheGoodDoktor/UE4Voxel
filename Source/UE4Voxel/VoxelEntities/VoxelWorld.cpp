@@ -66,6 +66,7 @@ void AVoxelWorld::BeginPlay()
 				{
 					Voxel::FChunk* pChunk = CreateChunkAt(FIntVector(x, y, z));
 					WorldBuilder->BuildWorldChunk(pChunk);
+					AddDirtyChunk(pChunk);
 				}
 			}
 		}
