@@ -5,6 +5,7 @@
 #include "MeshBuilders/MeshBuilderBase.h"
 #include "ProceduralMeshComponent.h"
 #include "KismetProceduralMeshLibrary.h"
+#include "Async.h"
 
 // Sets default values
 AVoxelWorld::AVoxelWorld()
@@ -82,22 +83,31 @@ void AVoxelWorld::Tick(float DeltaTime)
 	// Rebuild dirty chunks
 	if (DirtyChunks.Num() > 0)
 	{
+		// For each chunk that needs doing dispatch a task on the taskgraph to build the mesh
 		for (Voxel::FChunk* pChunk : DirtyChunks)
-		{
-			MeshBuilder->BuildMeshForChunk(pChunk);
-			// Setup mesh component
-			TArray<FVector> normals;
-			TArray<FColor> colours; 
-			TArray<FProcMeshTangent> tangents;
-
-			//UKismetProceduralMeshLibrary::CalculateTangentsForMesh(pChunk->Vertices, pChunk->Triangles, pChunk->UVs,normals,tangents);
-			
-			pChunk->MeshComponent->CreateMeshSection(0, pChunk->Vertices, pChunk->Triangles, normals, pChunk->UVs, colours, tangents,true);
+		{		
+			Async<Voxel::FChunk*>(EAsyncExecution::TaskGraph, 
+				[pChunk, this]() 
+				{ 
+					MeshBuilder->BuildMeshForChunk(pChunk); 
+					BuiltChunks.Enqueue(pChunk);
+					return pChunk; 
+				}
+			);
 
 			pChunk->IsDirty = false;
 		}
 
 		DirtyChunks.Empty();
+	}
+
+	// Update the meshes of built chunks
+	while (BuiltChunks.IsEmpty() == false)
+	{
+		Voxel::FChunk* pChunk = nullptr;
+		BuiltChunks.Dequeue(pChunk);
+		if(pChunk!=nullptr)
+			pChunk->MeshComponent->CreateMeshSection(0, pChunk->Vertices, pChunk->Triangles, pChunk->Normals, pChunk->UVs, pChunk->Colours, pChunk->Tangents, true);
 	}
 
 }

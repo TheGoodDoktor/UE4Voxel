@@ -116,7 +116,7 @@ int UMarchingCubesMeshBuilder::BuildMeshForBlock(const FIntVector& worldPos, con
 		FVector vertB = vertlist[GTriTable[cubeindex][i + 1]];
 		FVector vertC = vertlist[GTriTable[cubeindex][i + 0]];
 
-		FVector normal = FVector::CrossProduct(vertB - vertA, vertC - vertA);
+		FVector normal = FVector::CrossProduct(vertA - vertB, vertA - vertC);
 		normal.Normalize();
 		//Debug.Log("vert A: " + vertA.ToString());
 		//Debug.Log("vert B: " + vertB.ToString());

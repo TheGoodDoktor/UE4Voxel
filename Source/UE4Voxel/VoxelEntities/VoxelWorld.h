@@ -74,4 +74,5 @@ private:
 	Voxel::FBlock			OutsideBlock;	// block to use when outside of world
 
 	TArray<Voxel::FChunk *>	DirtyChunks;	// list of dirty chunks that need re-meshing
+	TQueue<Voxel::FChunk *>	BuiltChunks;
 };
