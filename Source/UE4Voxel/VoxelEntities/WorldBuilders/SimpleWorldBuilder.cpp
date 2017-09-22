@@ -8,15 +8,17 @@ void USimpleWorldBuilder::BeginPlay()
 {
 	Super::BeginPlay();
 
-	HeightField = new float[World->WorldSize.X * World->WorldSize.Y];
+	const Voxel::FWorld &world = World->GetVoxelWorld();
 
-	const int worldHeightInBlocks = World->WorldSize.Z;
+	HeightField = new float[world.WorldSizeBlocks.X * world.WorldSizeBlocks.Y];
+
+	const int worldHeightInBlocks = world.WorldSizeBlocks.Z;
 	const int minimumGroundheight = worldHeightInBlocks / 4;
 	const int groundheightRange = (int)(worldHeightInBlocks * 0.75f);
 
-	for (int blockX = 0; blockX < World->WorldSize.X; blockX++)
+	for (int blockX = 0; blockX < world.WorldSizeBlocks.X; blockX++)
 	{
-		for (int blockY = 0; blockY < World->WorldSize.Y; blockY++)
+		for (int blockY = 0; blockY < world.WorldSizeBlocks.Y; blockY++)
 		{
 			const float octave1 = USimplexNoiseBPLibrary::SimplexNoise2D(blockX * 0.0001f, blockY * 0.0001f) * 0.5f;
 			const float octave2 = USimplexNoiseBPLibrary::SimplexNoise2D(blockX * 0.0005f, blockY * 0.0005f) * 0.25f;
@@ -35,6 +37,8 @@ void USimpleWorldBuilder::BuildWorldChunk(Voxel::FChunk* pChunk)
 	if (HeightField == nullptr)
 		return;
 
+	const Voxel::FWorld &world = World->GetVoxelWorld();
+
 	for (int x = 0; x < Voxel::FChunk::kChunkSize; x++)
 	{
 		int blockX = pChunk->WorldPos.X + x;
@@ -42,10 +46,9 @@ void USimpleWorldBuilder::BuildWorldChunk(Voxel::FChunk* pChunk)
 		for (int y = 0; y < Voxel::FChunk::kChunkSize; y++)
 		{
 			int blockY = pChunk->WorldPos.Y + y;
-			GenerateTerrain(pChunk, x, y, blockX, blockY, World->WorldSize.Z);
+			GenerateTerrain(pChunk, x, y, blockX, blockY, world.WorldSizeBlocks.Z);
 		}
 	}
-
 }
 
 
@@ -55,7 +58,7 @@ void USimpleWorldBuilder::GenerateTerrain(Voxel::FChunk* pChunk, int blockXInChu
 
 	for (int z = 0; z < Voxel::FChunk::kChunkSize; z++)
 	{
-		bool bUnderground = z < groundHeightInChunk;
+		const bool bUnderground = z < groundHeightInChunk;
 		float density = bUnderground ? 1.0f : 0.0f;
 		int blockType = bUnderground ? 1 : 0;
 
@@ -93,7 +96,7 @@ void USimpleWorldBuilder::GenerateTerrain(Voxel::FChunk* pChunk, int blockXInChu
 		Voxel::FBlock newBlock;
 		newBlock.Type = blockType;
 		newBlock.Density = density;
-		pChunk->GetBlockAt(FIntVector(blockXInChunk, blockYInChunk, z)) = newBlock;
+		pChunk->SetBlockAt(FIntVector(blockXInChunk, blockYInChunk, z), newBlock);
 		//chunk.Blocks[blockXInChunk, y, blockZInChunk].m_Type = blockType;
 		//chunk.Blocks[blockXInChunk, y, blockZInChunk].m_Density = density;
 	}
@@ -102,11 +105,19 @@ void USimpleWorldBuilder::GenerateTerrain(Voxel::FChunk* pChunk, int blockXInChu
 
 float USimpleWorldBuilder::GetHeightField(int x, int y) const 
 { 
-	return HeightField[x + (y * World->WorldSize.X)]; 
+	const Voxel::FWorld &world = World->GetVoxelWorld();
+	check(x >= 0 && x < world.WorldSizeBlocks.X && y >= 0 && y < world.WorldSizeBlocks.Y);
+	if (x >= 0 && x < world.WorldSizeBlocks.X && y >= 0 && y < world.WorldSizeBlocks.Y)
+		return HeightField[x + (y * world.WorldSizeBlocks.X)];
+	else
+		return 0;
 }
 
 void  USimpleWorldBuilder::SetHeightField(int x, int y, float val) 
 { 
-	HeightField[x + (y * World->WorldSize.X)] = val; 
+	const Voxel::FWorld &world = World->GetVoxelWorld();
+	check(x >= 0 && x < world.WorldSizeBlocks.X && y >= 0 && y < world.WorldSizeBlocks.Y);
+	check(val >= 0 && val < world.WorldSizeBlocks.Z);
+	HeightField[x + (y * world.WorldSizeBlocks.X)] = val;
 }
 

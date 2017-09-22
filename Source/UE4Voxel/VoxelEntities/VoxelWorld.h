@@ -7,6 +7,11 @@
 #include "VoxelTypes.h"
 #include "VoxelWorld.generated.h"
 
+namespace Voxel
+{
+	struct FBlock;
+}
+
 UCLASS()
 class UE4VOXEL_API AVoxelWorld : public AActor
 {
@@ -24,17 +29,18 @@ public:
 
 	// public interface should only be dealing with voxel coords - chunks are implementation details
 	bool			IsPosOutsideWorld(FIntVector pos) const;
-	const Voxel::FBlock&	GetBlockAt(FIntVector voxelPos) const;
+	const Voxel::FBlock*	GetBlockAt(FIntVector voxelPos) const;
 	bool			SetBlockAt(FIntVector voxelPos, Voxel::FBlock block);
 
 	int32			GetChunkSizeInBlocks() const { return Voxel::FChunk::kChunkSize; }
-	
+	const Voxel::FWorld&	GetVoxelWorld() const { return	World; }
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// World size in voxels
+	// World size in chunks
 	UPROPERTY(EditAnywhere)
-	FIntVector	WorldSize;
+	FIntVector	WorldSizeChunks;
 
 	// How big each block should be in world units
 	UPROPERTY(EditAnywhere)
@@ -51,21 +57,19 @@ public:
 	// private data & methods
 private:
 
-	const Voxel::FBlock &GetBlockFromChunk(const Voxel::FChunk *pChunk, FIntVector blockPos) const 
+	/*const Voxel::FBlock *GetBlockFromChunk(const Voxel::FChunk *pChunk, FIntVector blockPos) const 
 	{
-		const int shiftVal = Voxel::FChunk::kChunkSizeShift;
-		return pChunk->BlockData[blockPos.X + (blockPos.Y << shiftVal) + (blockPos.Z << (shiftVal + shiftVal))];
+		return pChunk->GetBlockAt(blockPos);
 	}
 
-	Voxel::FBlock &GetBlockFromChunk(const Voxel::FChunk *pChunk, FIntVector blockPos)
+	Voxel::FBlock *GetBlockFromChunk(const Voxel::FChunk *pChunk, FIntVector blockPos)
 	{
-		return const_cast<Voxel::FBlock &>( static_cast<const AVoxelWorld&>(*this).GetBlockFromChunk(pChunk, blockPos));
-	}
+		return const_cast<Voxel::FBlock *>( static_cast<const AVoxelWorld&>(*this).GetBlockFromChunk(pChunk, blockPos));
+	}*/
 
 	Voxel::FChunk*			GetChunkAt(FIntVector chuckPos);
 	const Voxel::FChunk*	GetChunkAt(FIntVector chuckPos) const;
 	Voxel::FChunk*			CreateChunkAt(FIntVector chuckPos);
-	bool					AddDirtyChunk(Voxel::FChunk *pChunk);
 
 	class UMeshBuilderBase*		MeshBuilder;
 	class UWorldBuilderBase*	WorldBuilder;
@@ -73,6 +77,5 @@ private:
 	Voxel::FWorld			World;
 	Voxel::FBlock			OutsideBlock;	// block to use when outside of world
 
-	TArray<Voxel::FChunk *>	DirtyChunks;	// list of dirty chunks that need re-meshing
 	TQueue<Voxel::FChunk *>	BuiltChunks;
 };

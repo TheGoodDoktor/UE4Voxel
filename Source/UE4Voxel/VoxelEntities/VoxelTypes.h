@@ -42,7 +42,7 @@ struct FBlock
 	uint8 Type;
 	float Density;
 	
-	bool IsTransparent() {return Type == (int)EBlockType::Air;}
+	bool IsTransparent() const {return Type == (int)EBlockType::Air;}
 };
 
 // chunk of voxels - a cubic subsection of the world
@@ -59,10 +59,40 @@ struct FChunk
 		, MeshComponent(nullptr)
 	{}
 
-	Voxel::FBlock &GetBlockAt(FIntVector blockPos)
+	// Return if a block position within the chunk is valid
+	bool ValidBlockPos(FIntVector blockPos) const 
 	{
-		return BlockData[blockPos.X + (blockPos.Y << kChunkSizeShift) + (blockPos.Z << (kChunkSizeShift + kChunkSizeShift))];
+		if (blockPos.X < 0 || blockPos.X >= kChunkSize ||
+			blockPos.Y < 0 || blockPos.Y >= kChunkSize ||
+			blockPos.Z < 0 || blockPos.Z >= kChunkSize)
+			return false;
+
+		return true;
 	}
+
+	// Get a pointer to a block in the chunk - returns null if invalid
+	const Voxel::FBlock *GetBlockAt(FIntVector blockPos) const 
+	{
+		if (ValidBlockPos(blockPos))
+			return &BlockData[blockPos.X + (blockPos.Y << kChunkSizeShift) + (blockPos.Z << (kChunkSizeShift + kChunkSizeShift))];
+		else
+			return nullptr;
+	}
+
+	// Set a block in the chunk - return false if position is invalid
+	bool SetBlockAt(FIntVector blockPos, const Voxel::FBlock &block)
+	{
+		if (ValidBlockPos(blockPos))
+		{
+			BlockData[blockPos.X + (blockPos.Y << kChunkSizeShift) + (blockPos.Z << (kChunkSizeShift + kChunkSizeShift))] = block;
+			MarkDirty();
+			return true;
+		}
+
+		return false;
+	}
+
+	bool MarkDirty();
 
 	bool		IsDirty;	// chunk is dirty and needs re-meshing
 	FIntVector 	WorldPos;	// World position of chunk bottom corner in voxel coords
@@ -88,10 +118,16 @@ struct FChunk
 // voxel world
 struct FWorld
 {
+	void AddDirtyChunk(Voxel::FChunk *pChunk)
+	{
+		DirtyChunks.Add(pChunk);
+	}
+
 	FIntVector	WorldSizeChunks;	// The world size in chunks
 	FIntVector	WorldSizeBlocks;
 
 	TArray<Voxel::FChunk *>	Chunks;
+	TArray<Voxel::FChunk *>	DirtyChunks;	// list of dirty chunks that need re-meshing
 };
 
 }	//namespace Voxel

@@ -9,7 +9,7 @@
 
 // Sets default values
 AVoxelWorld::AVoxelWorld()
-	: WorldSize(16,16,16)
+	: WorldSizeChunks(2,2,2)
 	, BlockSize(100.0f)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -25,21 +25,15 @@ void AVoxelWorld::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// calculate number of chunks we need for given world size
-	const FIntVector worldSizeChunks(
-		(WorldSize.X >> Voxel::FChunk::kChunkSizeShift) + 1, 
-		(WorldSize.Y >> Voxel::FChunk::kChunkSizeShift) + 1, 
-		(WorldSize.Z >> Voxel::FChunk::kChunkSizeShift) + 1
-	);
-	World.WorldSizeChunks = worldSizeChunks;
+	World.WorldSizeChunks = WorldSizeChunks;
 
 	// calculate world size in blocks
-	World.WorldSizeBlocks.X = Voxel::FChunk::kChunkSize * worldSizeChunks.X;
-	World.WorldSizeBlocks.Y = Voxel::FChunk::kChunkSize * worldSizeChunks.Y;
-	World.WorldSizeBlocks.Z = Voxel::FChunk::kChunkSize * worldSizeChunks.Z;
+	World.WorldSizeBlocks.X = Voxel::FChunk::kChunkSize * WorldSizeChunks.X;
+	World.WorldSizeBlocks.Y = Voxel::FChunk::kChunkSize * WorldSizeChunks.Y;
+	World.WorldSizeBlocks.Z = Voxel::FChunk::kChunkSize * WorldSizeChunks.Z;
 
 	// fill up the chunk pointer array
-	const int noWorldChunks = worldSizeChunks.X * worldSizeChunks.Y * worldSizeChunks.Z;
+	const int noWorldChunks = WorldSizeChunks.X * WorldSizeChunks.Y * WorldSizeChunks.Z;
 	World.Chunks.Reset();
 	World.Chunks.AddZeroed(noWorldChunks);
 
@@ -60,15 +54,14 @@ void AVoxelWorld::BeginPlay()
 	// Build World
 	if (WorldBuilder != nullptr)
 	{
-		for (int x = 0; x < worldSizeChunks.X; x++)
+		for (int x = 0; x < WorldSizeChunks.X; x++)
 		{
-			for (int y = 0; y < worldSizeChunks.Y; y++)
+			for (int y = 0; y < WorldSizeChunks.Y; y++)
 			{
-				for (int z = 0; z < worldSizeChunks.Z; z++)
+				for (int z = 0; z < WorldSizeChunks.Z; z++)
 				{
 					Voxel::FChunk* pChunk = CreateChunkAt(FIntVector(x, y, z));
 					WorldBuilder->BuildWorldChunk(pChunk);
-					AddDirtyChunk(pChunk);
 				}
 			}
 		}
@@ -81,10 +74,10 @@ void AVoxelWorld::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	// Rebuild dirty chunks
-	if (DirtyChunks.Num() > 0)
+	if (World.DirtyChunks.Num() > 0)
 	{
 		// For each chunk that needs doing dispatch a task on the taskgraph to build the mesh
-		for (Voxel::FChunk* pChunk : DirtyChunks)
+		for (Voxel::FChunk* pChunk : World.DirtyChunks)
 		{		
 			Async<Voxel::FChunk*>(EAsyncExecution::TaskGraph, 
 				[pChunk, this]() 
@@ -98,7 +91,7 @@ void AVoxelWorld::Tick(float DeltaTime)
 			pChunk->IsDirty = false;
 		}
 
-		DirtyChunks.Empty();
+		World.DirtyChunks.Empty();
 	}
 
 	// Update the meshes of built chunks
@@ -144,19 +137,6 @@ Voxel::FChunk*	AVoxelWorld::CreateChunkAt(FIntVector chunkPos)
 	return pChunk;
 }
 
-bool AVoxelWorld::AddDirtyChunk(Voxel::FChunk *pChunk)
-{
-	check(pChunk != nullptr);
-
-	if (pChunk->IsDirty)	// chunk is already marked
-		return false;
-
-	// mark & add
-	pChunk->IsDirty = true;
-	DirtyChunks.Add(pChunk);
-	return true;
-}
-
 // Is a given voxel position outside of the world?
 bool AVoxelWorld::IsPosOutsideWorld(FIntVector voxelPos) const
 {
@@ -169,10 +149,10 @@ bool AVoxelWorld::IsPosOutsideWorld(FIntVector voxelPos) const
 
 // get a block at a given position in voxel coordinates
 // return outside block if there is no chunk or we are outside the world
-const Voxel::FBlock &AVoxelWorld::GetBlockAt(FIntVector voxelPos) const
+const Voxel::FBlock *AVoxelWorld::GetBlockAt(FIntVector voxelPos) const
 {
 	if (IsPosOutsideWorld(voxelPos))
-		return OutsideBlock;
+		return &OutsideBlock;
 
 	const FIntVector chunkPos(
 		voxelPos.X >> Voxel::FChunk::kChunkSizeShift, 
@@ -181,14 +161,18 @@ const Voxel::FBlock &AVoxelWorld::GetBlockAt(FIntVector voxelPos) const
 
 	const Voxel::FChunk* pChunk = GetChunkAt(chunkPos);
 	if (pChunk == nullptr)
-		return OutsideBlock;
+		return &OutsideBlock;
 
 	const FIntVector blockPos(
 		voxelPos.X & Voxel::FChunk::kChunkSizeMask, 
 		voxelPos.Y & Voxel::FChunk::kChunkSizeMask, 
 		voxelPos.Z & Voxel::FChunk::kChunkSizeMask);
 
-	return GetBlockFromChunk(pChunk, blockPos);
+	const Voxel::FBlock *pBlock = pChunk->GetBlockAt(blockPos);
+	if (pBlock == nullptr)
+		return &OutsideBlock;
+	else
+		return pBlock;
 }
 
 bool AVoxelWorld::SetBlockAt(FIntVector voxelPos, Voxel::FBlock block)
@@ -204,10 +188,7 @@ bool AVoxelWorld::SetBlockAt(FIntVector voxelPos, Voxel::FBlock block)
 		pChunk = CreateChunkAt(chunkPos);
 
 	const FIntVector blockPos(voxelPos.X & Voxel::FChunk::kChunkSizeMask, voxelPos.Y & Voxel::FChunk::kChunkSizeMask, voxelPos.Z & Voxel::FChunk::kChunkSizeMask);
-	GetBlockFromChunk(pChunk, blockPos) = block;
-
-	// Mark chunk to have its mesh rebuilt
-	AddDirtyChunk(pChunk);
+	pChunk->SetBlockAt(blockPos, block);
 
 	// If we are on a block edge then make neighbour dirty too
 
@@ -216,13 +197,13 @@ bool AVoxelWorld::SetBlockAt(FIntVector voxelPos, Voxel::FBlock block)
 	{
 		Voxel::FChunk* pNeighbourChunk = GetChunkAt(chunkPos + FIntVector(-1, 0, 0));
 		if (pNeighbourChunk != nullptr)
-			AddDirtyChunk(pNeighbourChunk);
+			pNeighbourChunk->MarkDirty();
 	}
 	if (blockPos.X == Voxel::FChunk::kChunkSize - 1 && chunkPos.X < World.WorldSizeChunks.X - 1)
 	{
 		Voxel::FChunk* pNeighbourChunk = GetChunkAt(chunkPos + FIntVector(1, 0, 0));
 		if (pNeighbourChunk != nullptr)
-			AddDirtyChunk(pNeighbourChunk);
+			pNeighbourChunk->MarkDirty();
 	}
 
 	// Y Edges
@@ -230,13 +211,13 @@ bool AVoxelWorld::SetBlockAt(FIntVector voxelPos, Voxel::FBlock block)
 	{
 		Voxel::FChunk* pNeighbourChunk = GetChunkAt(chunkPos + FIntVector(0, -1, 0));
 		if (pNeighbourChunk != nullptr)
-			AddDirtyChunk(pNeighbourChunk);
+			pNeighbourChunk->MarkDirty();
 	}
 	if (blockPos.Y == Voxel::FChunk::kChunkSize - 1 && chunkPos.Y < World.WorldSizeChunks.Y - 1)
 	{
 		Voxel::FChunk* pNeighbourChunk = GetChunkAt(chunkPos + FIntVector(0, 1, 0));
 		if (pNeighbourChunk != nullptr)
-			AddDirtyChunk(pNeighbourChunk);
+			pNeighbourChunk->MarkDirty();
 	}
 
 	// Z Edges
@@ -244,13 +225,13 @@ bool AVoxelWorld::SetBlockAt(FIntVector voxelPos, Voxel::FBlock block)
 	{
 		Voxel::FChunk* pNeighbourChunk = GetChunkAt(chunkPos + FIntVector(0, 0, -1));
 		if (pNeighbourChunk != nullptr)
-			AddDirtyChunk(pNeighbourChunk);
+			pNeighbourChunk->MarkDirty();
 	}
 	if (blockPos.Z == Voxel::FChunk::kChunkSize - 1 && chunkPos.Z < World.WorldSizeChunks.Z - 1)
 	{
 		Voxel::FChunk* pNeighbourChunk = GetChunkAt(chunkPos + FIntVector(0, 0, 1));
 		if (pNeighbourChunk != nullptr)
-			AddDirtyChunk(pNeighbourChunk);
+			pNeighbourChunk->MarkDirty();
 	}
 
 	return true;

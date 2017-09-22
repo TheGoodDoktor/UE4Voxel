@@ -164,14 +164,14 @@ int UMarchingCubesMeshBuilder::BuildMeshForBlock(const FIntVector& worldPos, con
 
 void UMarchingCubesMeshBuilder::CalculateDensitiesForBlock(FIntVector worldPos, float *density)
 {
-	density[0] = World->GetBlockAt(worldPos + FIntVector(0, 0, 1)).Density;
-	density[1] = World->GetBlockAt(worldPos + FIntVector(1, 0, 1)).Density;
-	density[2] = World->GetBlockAt(worldPos + FIntVector(1, 0, 0)).Density;
-	density[3] = World->GetBlockAt(worldPos + FIntVector(0, 0, 0)).Density;
-	density[4] = World->GetBlockAt(worldPos + FIntVector(0, 1, 1)).Density;
-	density[5] = World->GetBlockAt(worldPos + FIntVector(1, 1, 1)).Density;
-	density[6] = World->GetBlockAt(worldPos + FIntVector(1, 1, 0)).Density;
-	density[7] = World->GetBlockAt(worldPos + FIntVector(0, 1, 0)).Density;
+	density[0] = World->GetBlockAt(worldPos + FIntVector(0, 0, 1))->Density;
+	density[1] = World->GetBlockAt(worldPos + FIntVector(1, 0, 1))->Density;
+	density[2] = World->GetBlockAt(worldPos + FIntVector(1, 0, 0))->Density;
+	density[3] = World->GetBlockAt(worldPos + FIntVector(0, 0, 0))->Density;
+	density[4] = World->GetBlockAt(worldPos + FIntVector(0, 1, 1))->Density;
+	density[5] = World->GetBlockAt(worldPos + FIntVector(1, 1, 1))->Density;
+	density[6] = World->GetBlockAt(worldPos + FIntVector(1, 1, 0))->Density;
+	density[7] = World->GetBlockAt(worldPos + FIntVector(0, 1, 0))->Density;
 }
 
 
