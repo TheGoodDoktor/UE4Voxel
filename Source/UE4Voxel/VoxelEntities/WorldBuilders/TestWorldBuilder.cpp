@@ -11,11 +11,13 @@ void UTestWorldBuilder::BeginPlay()
 	SolidBlock.Density = 1.0f;
 	SolidBlock.Type = 1;
 
-	for (int blockX = 0; blockX < World->WorldSize.X; blockX++)
+	const Voxel::FWorld &world = World->GetVoxelWorld();
+
+	for (int blockX = 0; blockX < world.WorldSizeBlocks.X; blockX++)
 	{
-		for (int blockY = 0; blockY < World->WorldSize.Y; blockY++)
+		for (int blockY = 0; blockY < world.WorldSizeBlocks.Y; blockY++)
 		{
-			const int height = FMath::RandRange(1, World->WorldSize.Z);
+			const int height = FMath::RandRange(1, world.WorldSizeBlocks.Z);
 
 			for (int z = 0; z < height; z++)
 			{
