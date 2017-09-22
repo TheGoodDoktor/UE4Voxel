@@ -57,16 +57,6 @@ public:
 	// private data & methods
 private:
 
-	/*const Voxel::FBlock *GetBlockFromChunk(const Voxel::FChunk *pChunk, FIntVector blockPos) const 
-	{
-		return pChunk->GetBlockAt(blockPos);
-	}
-
-	Voxel::FBlock *GetBlockFromChunk(const Voxel::FChunk *pChunk, FIntVector blockPos)
-	{
-		return const_cast<Voxel::FBlock *>( static_cast<const AVoxelWorld&>(*this).GetBlockFromChunk(pChunk, blockPos));
-	}*/
-
 	Voxel::FChunk*			GetChunkAt(FIntVector chuckPos);
 	const Voxel::FChunk*	GetChunkAt(FIntVector chuckPos) const;
 	Voxel::FChunk*			CreateChunkAt(FIntVector chuckPos);
