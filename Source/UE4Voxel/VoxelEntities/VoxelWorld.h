@@ -48,6 +48,10 @@ public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UWorldBuilderBase>	WorldBuilderClass;
 
+	// Material to use to render world
+	UPROPERTY(EditAnywhere)
+	UMaterialInterface *	WorldMaterial;
+
 	// private data & methods
 private:
 

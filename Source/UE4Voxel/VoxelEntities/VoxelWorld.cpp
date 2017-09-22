@@ -107,7 +107,7 @@ void AVoxelWorld::Tick(float DeltaTime)
 		Voxel::FChunk* pChunk = nullptr;
 		BuiltChunks.Dequeue(pChunk);
 		if(pChunk!=nullptr)
-			pChunk->MeshComponent->CreateMeshSection(0, pChunk->Vertices, pChunk->Triangles, pChunk->Normals, pChunk->UVs, pChunk->Colours, pChunk->Tangents, true);
+			pChunk->MeshComponent->CreateMeshSection_LinearColor(0, pChunk->Vertices, pChunk->Triangles, pChunk->Normals, pChunk->UVs, pChunk->Colours, pChunk->Tangents, true);
 	}
 
 }
@@ -141,6 +141,7 @@ Voxel::FChunk*	AVoxelWorld::CreateChunkAt(FIntVector chunkPos)
 	pChunk->MeshComponent->RegisterComponent();
 	pChunk->MeshComponent->AttachToComponent(RootComponent,FAttachmentTransformRules::KeepRelativeTransform);
 	pChunk->MeshComponent->SetRelativeLocation(FVector(pChunk->WorldPos) * BlockSize);
+	pChunk->MeshComponent->SetMaterial(0, WorldMaterial);
 	return pChunk;
 }
 

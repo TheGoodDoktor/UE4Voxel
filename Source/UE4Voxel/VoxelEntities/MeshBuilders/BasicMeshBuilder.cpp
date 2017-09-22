@@ -163,18 +163,18 @@ void UBasicMeshBuilder::AddBlockFace(FVector va, FVector vb, FVector vc, FVector
 	pChunk->Vertices.Add(vd * blockSize);
 
 	// Normals
-	//pChunk->Normals.Add(g_FaceNormals[(int)blockFace]);
-	//pChunk->Normals.Add(g_FaceNormals[(int)blockFace]);
-	//pChunk->Normals.Add(g_FaceNormals[(int)blockFace]);
-	//pChunk->Normals.Add(g_FaceNormals[(int)blockFace]);
+	pChunk->Normals.Add(g_FaceNormals[(int)blockFace]);
+	pChunk->Normals.Add(g_FaceNormals[(int)blockFace]);
+	pChunk->Normals.Add(g_FaceNormals[(int)blockFace]);
+	pChunk->Normals.Add(g_FaceNormals[(int)blockFace]);
 
 	// Colours
-	/*var item = new Color(actualColour, actualColour, actualColour, 1.0f);
-	chunk.Colours.Add(item);
-	chunk.Colours.Add(item);
-	chunk.Colours.Add(item);
-	chunk.Colours.Add(item);
-	*/
+	FLinearColor colour(0.5f, 0.5f, 0.5f);
+	pChunk->Colours.Add(colour);
+	pChunk->Colours.Add(colour);
+	pChunk->Colours.Add(colour);
+	pChunk->Colours.Add(colour);
+	
 	// Index quad of 2 tris
 	pChunk->Triangles.Add(index + 2);
 	pChunk->Triangles.Add(index + 1);

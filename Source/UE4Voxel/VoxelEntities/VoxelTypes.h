@@ -70,17 +70,13 @@ struct FChunk
 	FBlock *	BlockData;	// 3D array of blocks
 	FWorld *	World;		// Which world this chunk belongs to
 
-	
 	// Data to produce mesh
 	TArray<FVector>		Vertices;
 	TArray<int32>		Triangles;
 	TArray<FVector2D>	UVs;
 	TArray<FVector>		Normals;
-	TArray<FColor>		Colours;
+	TArray<FLinearColor>	Colours;
 	TArray<FProcMeshTangent> Tangents;
-
-	//TArray<FVector>				Normals;
-	//TArray<FProcMeshTangent>	Tangents;
 
 	UProceduralMeshComponent *	MeshComponent;
 };
