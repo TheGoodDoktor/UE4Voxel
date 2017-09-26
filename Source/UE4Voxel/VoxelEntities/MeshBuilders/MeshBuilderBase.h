@@ -13,7 +13,7 @@ namespace Voxel
 	struct FChunk;
 }
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Abstract )
+UCLASS(ClassGroup = (Custom), BlueprintType, Blueprintable, meta = (BlueprintSpawnableComponent), Abstract)
 class UE4VOXEL_API UMeshBuilderBase : public UActorComponent
 {
 	GENERATED_BODY()

@@ -4,7 +4,6 @@
 #include "WorldBuilders/WorldBuilderBase.h"
 #include "MeshBuilders/MeshBuilderBase.h"
 #include "ProceduralMeshComponent.h"
-#include "KismetProceduralMeshLibrary.h"
 #include "Async.h"
 
 // Sets default values

@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BasicMeshBuilder.h"
+#include "KismetProceduralMeshLibrary.h"
 
 #include "../VoxelWorld.h"
 
@@ -40,6 +41,8 @@ void UBasicMeshBuilder::BuildMeshForChunk(Voxel::FChunk* pChunk)
 			}
 		}
 	}
+
+	UKismetProceduralMeshLibrary::CalculateTangentsForMesh(pChunk->Vertices, pChunk->Triangles, pChunk->UVs, pChunk->Normals, pChunk->Tangents);
 }
 
 // Build the mesh for a given block within a chunk
@@ -179,6 +182,12 @@ void UBasicMeshBuilder::AddBlockFace(FVector va, FVector vb, FVector vc, FVector
 	pChunk->Colours.Add(colour);
 	pChunk->Colours.Add(colour);
 	pChunk->Colours.Add(colour);
+
+	// UVs
+	pChunk->UVs.Add(FVector2D(0.0f, 0.0f));
+	pChunk->UVs.Add(FVector2D(0.0f, 1.0f));
+	pChunk->UVs.Add(FVector2D(1.0f, 1.0f));
+	pChunk->UVs.Add(FVector2D(1.0f, 0.0f));
 	
 	// Index quad of 2 tris
 	pChunk->Triangles.Add(index + 2);

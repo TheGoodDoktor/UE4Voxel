@@ -2,10 +2,18 @@
 
 #include "MarchingCubesMeshBuilder.h"
 
+#include "KismetProceduralMeshLibrary.h"
+
 #include "../VoxelWorld.h"
 #include "MarchingCubesLUT.h"
 
 FVector VertexInterp(float isolevel, FVector p1, FVector p2, float valp1, float valp2);
+
+UMarchingCubesMeshBuilder::UMarchingCubesMeshBuilder()
+	: IsoThreshold(0.5f)
+{
+
+}
 
 void UMarchingCubesMeshBuilder::BuildMeshForChunk(Voxel::FChunk* pChunk)
 {
@@ -38,6 +46,9 @@ void UMarchingCubesMeshBuilder::BuildMeshForChunk(Voxel::FChunk* pChunk)
 			}
 		}
 	}
+
+	UKismetProceduralMeshLibrary::CalculateTangentsForMesh(pChunk->Vertices, pChunk->Triangles, pChunk->UVs, pChunk->Normals, pChunk->Tangents);
+
 }
 
 
@@ -47,7 +58,7 @@ int UMarchingCubesMeshBuilder::BuildMeshForBlock(const FIntVector& worldPos, con
 	//FBlock currentBlock = pChunk->BlockData[];
 	FVector points[8];
 	FVector vertlist[12];
-	float isoLevel = 0.8f;  // TODO: proper value
+	const float isoLevel = IsoThreshold;  
 	float density[8];
 	const float blockSize = World->BlockSize;
 
